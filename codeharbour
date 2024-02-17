@@ -67,27 +67,30 @@ func_repo() {
 
 ##### Functions for Getting Project details
 get_projectName() {
-    printf 'Enter repo name: '
+    printf "%b?%b Project name: " "$light_green" "$clear"
+    # echo -ne "$light_green?$clear Project name -> "
     regex='^[0-9A-Za-z!@#$%^&*()_+-={}|\;:<>/?"]+$' ##
     while read -r -N1 -s char; do
         case "$char" in
-            $'\177') input=${input%?};;
-            $' ')   input=$(printf '%s ' "$input");; # echo "Space is pressed";;
-            $'\n')  if [[ $input =~ $regex ]]; then
+            $'\177') project_name=${project_name%?};;
+            $' ')   project_name=$(printf '%s ' "$project_name");; # echo "Space is pressed";;
+            $'\n')  if [[ $project_name =~ $regex ]]; then
                         printf '\n'
                         break
                     else
-                        printf '\rEnter repo name: \e[K\e[31m%s\e[0m {Spaces are not allowed}\n' "$input"
+                        printf '\r\e[K\e[31mX\e[0m Project name: \e[31m%s\e[0m {Spaces are not allowed}\n' "$project_name"
                     fi ;;
-            *) input+=$char;;
+            *) project_name+=$char;;
         esac
-        printf '\rEnter repo name: \e[K'
-        if [[ $input =~ $regex ]]; then
+        # printf "\r${light_green}?${clear} Project name: \e[K"
+        if [[ $project_name =~ $regex ]]; then
+            printf "\r%b?%b Project name: \e[K" "$light_green" "$clear"
             printf '\e[32m'
         else
+            printf "\r%bX%b Project name: \e[K" "$red" "$clear"
             printf '\e[31m'
         fi
-        printf '%s\e[0m' "$input"
+        printf '%s\e[0m' "$project_name"
     done
 }
 
@@ -112,7 +115,7 @@ main() {
     else
         func_repo
     fi
-    func_obs_note
+    # func_obs_note
     echo -e "${green}✓${clear} Project $project_name has been initiated successfully!!!"
 }
 
