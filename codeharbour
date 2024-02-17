@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 light_green='\033[92m'
 green='\033[32m'
@@ -65,8 +65,35 @@ func_repo() {
     done
 }
 
+##### Functions for Getting Project details
+get_projectName() {
+    printf 'Enter repo name: '
+    regex='^[0-9A-Za-z!@#$%^&*()_+-={}|\;:<>/?"]+$' ##
+    while read -r -N1 -s char; do
+        case "$char" in
+            $'\177') input=${input%?};;
+            $' ')   input=$(printf '%s ' "$input");; # echo "Space is pressed";;
+            $'\n')  if [[ $input =~ $regex ]]; then
+                        printf '\n'
+                        break
+                    else
+                        printf '\rEnter repo name: \e[K\e[31m%s\e[0m {Spaces are not allowed}\n' "$input"
+                    fi ;;
+            *) input+=$char;;
+        esac
+        printf '\rEnter repo name: \e[K'
+        if [[ $input =~ $regex ]]; then
+            printf '\e[32m'
+        else
+            printf '\e[31m'
+        fi
+        printf '%s\e[0m' "$input"
+    done
+}
+
 get_args() {
-    read -re -p "$(echo -e "$light_green?$clear Project name -> ")" project_name
+    get_projectName
+    # read -re -p "$(echo -e "$light_green?$clear Project name -> ")" project_name
     echo -n -e "${light_green}?${clear} Description -> " ; read -re project_desc
     echo -n -e "${light_green}?${clear} Visibility -> "; read -re visibility
     echo -n -e "${light_green}?${clear} Do you want to add License? -> " ; read -re add_license
