@@ -7,11 +7,17 @@ clear='\033[0m'
 orange="\033[38;5;11m"
 purple='\033[35m'
 
+####### Declaring default variables and lists
+declare -i selected
+declare key_input
+ESC=$( printf "\033")
+visibility_options=("public" "private" "internal")
+
 func_visibility() {
-    if [[ $visibility = "" ]]; then
-        visibility="public"
+    if [[ $visibility_choice = "" ]]; then
+        visibility_choice="public"
     fi
-    create_repo=$create_repo" --$visibility"
+    create_repo=$create_repo" --$visibility_choice"
 }
 
 func_readme() {
@@ -65,24 +71,44 @@ func_repo() {
     done
 }
 
+##### Supporting functions for creating selection menu
+print_options() {
+    for opt in "${options_list[@]}"; do
+        if [[ ${options_list[$selected]} = "$opt" ]]; then
+            printf "%b - %b" "$green" "$clear"
+            printf "%b$opt%b\n" "$green" "$clear"
+        else
+            echo "   $opt"
+        fi
+    done
+}
+get_key_input() {
+    read -r -n3 -s key
+    if [[ $key = "${ESC}[A" ]]; then
+        key_input="up"
+    elif [[ $key = "${ESC}[B" ]]; then
+        key_input="down"
+    elif [[ $key = "" ]]; then
+        key_input="enter"
+    fi
+}
+
 ##### Functions for Getting Project details
 get_projectName() {
     printf "%b?%b Project name: " "$light_green" "$clear"
-    # echo -ne "$light_green?$clear Project name -> "
     regex='^[0-9A-Za-z!@#$%^&*()_+-={}|\;:<>/?"]+$' ##
     while read -r -N1 -s char; do
         case "$char" in
             $'\177') project_name=${project_name%?};;
             $' ')   project_name=$(printf '%s ' "$project_name");; # echo "Space is pressed";;
             $'\n')  if [[ $project_name =~ $regex ]]; then
-                        printf '\n'
+                        # printf '\n'
                         break
                     else
                         printf '\r\e[K\e[31mX\e[0m Project name: \e[31m%s\e[0m {Spaces are not allowed}\n' "$project_name"
                     fi ;;
             *) project_name+=$char;;
         esac
-        # printf "\r${light_green}?${clear} Project name: \e[K"
         if [[ $project_name =~ $regex ]]; then
             printf "\r%b?%b Project name: \e[K" "$light_green" "$clear"
             printf '\e[32m'
@@ -92,13 +118,41 @@ get_projectName() {
         fi
         printf '%s\e[0m' "$project_name"
     done
+    printf "\r\e[K%b?%b Project name: %b$project_name%b \n" "$light_green" "$clear" "$light_green" "$clear"
+}
+
+get_visibility() {
+    printf "%b?%b Github Visibility: \n" "$light_green" "$clear"
+    options_list=("$@")
+    index_range=${#options_list[@]}-1
+    print_options
+    while true; do
+        get_key_input
+        case $key_input in
+            enter) 
+                printf "\r\e[4A\e[0J"
+                printf "%b?%b Github Visibility: %b${options_list[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
+                break;;
+            up) ((selected--))
+                if [[ $selected -lt 0 ]]; then
+                    selected=$index_range
+                fi;;
+            down) ((selected++))
+                if [[ $selected -gt $index_range ]]; then
+                    selected=0
+                fi
+        esac
+        printf "\r\e[3A"
+        print_options
+    done
+    return $selected
 }
 
 get_args() {
     get_projectName
-    # read -re -p "$(echo -e "$light_green?$clear Project name -> ")" project_name
-    echo -n -e "${light_green}?${clear} Description -> " ; read -re project_desc
-    echo -n -e "${light_green}?${clear} Visibility -> "; read -re visibility
+    echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc
+    get_visibility "${visibility_options[@]}"; visibility_choice=${visibility_options[$selected]}
+    # echo -n -e "${light_green}?${clear} Visibility -> "; read -re visibility
     echo -n -e "${light_green}?${clear} Do you want to add License? -> " ; read -re add_license
     if [[ $add_license = "yes" ]]; then
         echo -n -e "${light_green}?${clear} Enter the Open source license to add -> " ; read -re license
