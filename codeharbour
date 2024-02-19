@@ -151,9 +151,9 @@ get_git_visibility() {
 }
 
 get_git_license() {
-    printf "%b?%b Github License: \n" "$light_green" "$clear"
+    printf "%b?%b Choose Github License: \n" "$light_green" "$clear"
     create_menu "${license_options[@]}"; license_choice=${license_options_shortId[$selected]}
-    printf "\r\e[11A\e[0J"
+    printf "\r\e[12A\e[0J"
     printf "%b?%b Github License: %b${license_options[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
 }
 
@@ -162,10 +162,13 @@ get_args() {
     echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc
     get_git_visibility
 
-    echo -n -e "${light_green}?${clear} Do you want to add License? -> " ; read -re add_license
-    if [[ $add_license = "yes" ]]; then
+    echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -re add_license
+    if [[ $add_license = "yes" || $add_license = "y" ]]; then
         # echo -n -e "${light_green}?${clear} Enter the Open source license to add -> " ; read -re license
+        printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}" 
         get_git_license
+    elif [[ $add_license = "no" || $add_license = "n" || $add_license = "" ]]; then
+        printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}" 
     fi
     echo -n -e "${light_green}?${clear} Do you want to add a README file? -> "; read -re add_readme
     echo -n -e "${light_green}?${clear} Path for local directory (leave empty for CWD) -> "; read -re local_path
