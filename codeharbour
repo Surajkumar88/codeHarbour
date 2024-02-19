@@ -68,7 +68,9 @@ func_repo() {
 
 ##### Functions for creating selection menu
 create_menu() {
+    selected=0
     options_list=("$@")
+    item_no=${#options_list[@]}
     index_range=${#options_list[@]}-1
     print_options
     while true; do
@@ -84,7 +86,10 @@ create_menu() {
                     selected=0
                 fi
         esac
-        printf "\r\e[3A"
+        
+        printf "\r\e["
+        printf "%s" "$item_no"
+        printf  "A"
         print_options
     done
     return $selected
@@ -142,11 +147,14 @@ get_git_visibility() {
     printf "%b?%b Github Visibility: \n" "$light_green" "$clear"
     create_menu "${visibility_options[@]}"; visibility_choice=${visibility_options[$selected]}
     printf "\r\e[4A\e[0J"
-    printf "%b?%b Github Visibility: %b${options_list[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
+    printf "%b?%b Github Visibility: %b$visibility_choice%b\n" "$light_green" "$clear" "$light_green" "$clear"
 }
 
 get_git_license() {
-    
+    printf "%b?%b Github License: \n" "$light_green" "$clear"
+    create_menu "${license_options[@]}"; license_choice=${license_options_shortId[$selected]}
+    printf "\r\e[11A\e[0J"
+    printf "%b?%b Github License: %b${license_options[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
 }
 
 get_args() {
