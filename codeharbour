@@ -12,13 +12,9 @@ declare -i selected
 declare key_input
 ESC=$( printf "\033")
 visibility_options=("public" "private" "internal")
+license_options=("MIT License" "GNU Affero General Public License v3.0" "Apache License 2.0" "Boost Software License 1.0" "Creative Commons Zero v1.0 Universal" "Eclipse Public License 2.0" "GNU General Public License v2.0" "GNU General Public License v3.0" "GNU Lesser General Public License v2.1" "Mozilla Public License 2.0" "The Unlicense")
+license_options_shortId=("MIT" "AGPL-3.0" "Apache-2.0" "BSL-1.0" "CC0-1.0" "EPL-2.0" "GPL-2.0-only" "GPL-3.0-only" "LGPL-2.1-only" "MPL-2.0" "Unlicense")
 
-func_visibility() {
-    if [[ $visibility_choice = "" ]]; then
-        visibility_choice="public"
-    fi
-    create_repo=$create_repo" --$visibility_choice"
-}
 
 func_readme() {
     if [[ $add_readme = "yes" ]]; then
@@ -26,12 +22,12 @@ func_readme() {
     fi
 }
 
-func_license() {
-    if [[ $add_license = "yes" ]]; then
-        license="MIT"
-    fi
-    create_repo=$create_repo" --license $license"
-}
+# func_license() {
+#     if [[ $add_license = "yes" ]]; then
+#         license="MIT"
+#     fi
+#     create_repo=$create_repo" --license $license"
+# }
 
 func_clone() {
     cwd=$(pwd)
@@ -49,9 +45,8 @@ func_obs_note() {
 func_repo() {
     echo "Creating Github repo..."
     create_repo="gh repo create $project_name --clone"
-    func_visibility
     func_readme
-    func_license
+    # func_license
     
     for try in $(seq 1 5) ; do
         out=$($create_repo --description "${project_desc}" 2>&1)
@@ -150,14 +145,19 @@ get_git_visibility() {
     printf "%b?%b Github Visibility: %b${options_list[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
 }
 
+get_git_license() {
+    
+}
+
 get_args() {
     get_projectName
     echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc
     get_git_visibility
-    # echo -n -e "${light_green}?${clear} Visibility -> "; read -re visibility
+
     echo -n -e "${light_green}?${clear} Do you want to add License? -> " ; read -re add_license
     if [[ $add_license = "yes" ]]; then
-        echo -n -e "${light_green}?${clear} Enter the Open source license to add -> " ; read -re license
+        # echo -n -e "${light_green}?${clear} Enter the Open source license to add -> " ; read -re license
+        get_git_license
     fi
     echo -n -e "${light_green}?${clear} Do you want to add a README file? -> "; read -re add_readme
     echo -n -e "${light_green}?${clear} Path for local directory (leave empty for CWD) -> "; read -re local_path
