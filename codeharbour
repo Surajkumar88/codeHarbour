@@ -22,14 +22,13 @@ func_readme() {
     fi
 }
 
-# func_license() {
-#     if [[ $add_license = "yes" ]]; then
-#         license="MIT"
-#     fi
-#     create_repo=$create_repo" --license $license"
-# }
+func_license() {
+    if [[ $add_license = "yes" ]]; then
+        create_repo=$create_repo" --license $license_choice"
+    fi
+}
 
-func_clone() {
+func_local_clone() {
     cwd=$(pwd)
     cd "$local_path" || echo -e "${purple}X Local directory doesn't exist.${clear}"
     func_repo
@@ -44,9 +43,9 @@ func_obs_note() {
 
 func_repo() {
     echo "Creating Github repo..."
-    create_repo="gh repo create $project_name --clone"
+    create_repo="gh repo create $project_name --clone --$visibility_choice"
     func_readme
-    # func_license
+    func_license
     
     for try in $(seq 1 5) ; do
         out=$($create_repo --description "${project_desc}" 2>&1)
@@ -164,21 +163,58 @@ get_args() {
 
     echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -re add_license
     if [[ $add_license = "yes" || $add_license = "y" ]]; then
-        # echo -n -e "${light_green}?${clear} Enter the Open source license to add -> " ; read -re license
+        add_license="yes"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}" 
         get_git_license
-    elif [[ $add_license = "no" || $add_license = "n" || $add_license = "" ]]; then
+    elif [[ $add_license = "no" || $add_license = "n" ]]; then
+        add_license="no"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}" 
+    elif [[ $add_license = "" ]]; then
+        add_license="no"
+        printf "\r\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
-    echo -n -e "${light_green}?${clear} Do you want to add a README file? -> "; read -re add_readme
-    echo -n -e "${light_green}?${clear} Path for local directory (leave empty for CWD) -> "; read -re local_path
-}   
+    echo -n -e "${light_green}?${clear} Do you want to add a README file?: (y/N) "; read -re add_readme
+    if [[ $add_readme = "yes" || $add_readme = "y" ]]; then
+        add_readme="yes"
+        printf "\r\e[1A\e[0J%b?%b Do you want to add a README file?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
+    elif [[ $add_readme = "no" || $add_readme = "n" ]]; then
+        add_readme="no"
+        printf "\r\e[1A\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
+    elif [[ $add_readme = "" ]]; then
+        add_readme="no"
+        printf "\r\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
+    fi
+    echo -n -e "${light_green}?${clear} Do you want to clone the repo locally?: (y/N) "; read -re add_local_clone
+    if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
+        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
+        printf "%b?%b Path for local directory (leave empty for CWD): " "$light_green" "$clear"
+        read -r local_path
+    elif [[ $add_local_clone = "no" || $add_local_clone = "n" ]]; then
+        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
+    elif [[ $add_local_clone = "" ]]; then
+        printf "\r\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
+    fi
+    printf "%b?%b This will create \"$project_name\" as a $visibility_choice repo on Github, " "${light_green}" "${clear}"
+    if [[ -n $local_path ]]; then
+        printf "a local clone at path %s " "$local_path"
+    fi
+    printf "and a obsidian note!!!\n"
+    printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
+    read -r continue
+    if [[ $continue = "yes" || $continue = "y" ]]; then
+        :
+    elif [[ $continue = "no" || $continue = "n" ]]; then
+        exit 0
+    elif [[ $continue = "" ]]; then
+        :
+    fi
+}       
 
 main() {
 
     get_args
     if [[ -n $local_path ]]; then
-        func_clone
+        func_local_clone
     else
         func_repo
     fi
