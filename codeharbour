@@ -70,8 +70,8 @@ func_repo() {
 create_menu() {
     selected=0
     options_list=("$@")
-    item_no=${#options_list[@]}
-    index_range=${#options_list[@]}-1
+    option_len=${#options_list[@]}
+    index_range=$option_len-1
     print_options
     while true; do
         get_key_input
@@ -88,7 +88,7 @@ create_menu() {
         esac
         
         printf "\r\e["
-        printf "%s" "$item_no"
+        printf "%s" "$option_len"
         printf  "A"
         print_options
     done
