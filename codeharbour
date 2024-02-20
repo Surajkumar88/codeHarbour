@@ -3,6 +3,7 @@
 light_green='\033[92m'
 green='\033[32m'
 red='\033[31m'
+blue='\033[34m'
 clear='\033[0m'
 orange="\033[38;5;11m"
 purple='\033[35m'
@@ -30,8 +31,9 @@ func_license() {
 
 func_local_clone() {
     cwd=$(pwd)
-    cd "$local_path" || echo -e "${purple}X Local directory doesn't exist.${clear}"
-    func_repo
+    cd "$local_path" 2> /dev/null || { echo -e "${red}X Local directory \"$local_path\" doesn't exist.${clear}"; exit 0; }
+    func_repo " --clone"
+    echo -e "${blue}✓${clear} Cloned repository $project_name locally to path $local_path"
     cd "$cwd" || echo "Path error"
 }
 
@@ -43,7 +45,7 @@ func_obs_note() {
 
 func_repo() {
     echo "Creating Github repo..."
-    create_repo="gh repo create $project_name --clone --$visibility_choice"
+    create_repo="gh repo create $project_name --$visibility_choice"$1
     func_readme
     func_license
     
@@ -51,15 +53,15 @@ func_repo() {
         out=$($create_repo --description "${project_desc}" 2>&1)
         if [[ "${out[*]:32:${#project_name}}" = "$project_name" ]]; then
             echo -e "${orange}✓${clear} Created repository SurajKumar88/$project_name on Github"
-            # echo "  $out"
             break
         elif [[ "${out[*]::8}" = "HTTP 422" ]]; then
             echo -e "${red}X A repository with this name already exists${clear}"
-            break
+            exit 0
         else
             if [[ $try -eq 5 ]]; then
                 echo "Github repo couldn't be created in 5 tries, please check inputs or connection."
                 echo -e "${red}ERROR${clear} => $out"
+                exit 0
             fi
         fi
     done
@@ -188,7 +190,7 @@ get_args() {
     if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
         printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
         printf "%b?%b Path for local directory (leave empty for CWD): " "$light_green" "$clear"
-        read -r local_path
+        read -re local_path
     elif [[ $add_local_clone = "no" || $add_local_clone = "n" ]]; then
         printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
     elif [[ $add_local_clone = "" ]]; then
@@ -202,6 +204,7 @@ get_args() {
     printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
     read -r continue
     if [[ $continue = "yes" || $continue = "y" ]]; then
+
         :
     elif [[ $continue = "no" || $continue = "n" ]]; then
         exit 0
