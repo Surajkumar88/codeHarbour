@@ -195,7 +195,15 @@ get_args() {
         printf "a local clone at path %s " "$local_path"
     fi
     printf "and a obsidian note\n"
-
+    printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
+    read -r continue
+    if [[ $continue = "yes" || $continue = "y" ]]; then
+        :
+    elif [[ $continue = "no" || $continue = "n" ]]; then
+        exit 0
+    elif [[ $continue = "" ]]; then
+        :
+    fi
 }       
 
 main() {
