@@ -160,7 +160,7 @@ get_git_license() {
 
 get_args() {
     get_projectName
-    echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc
+    echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc; [[ -z $project_desc ]] && printf "\n"
     get_git_visibility
 
     echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -re add_license
@@ -188,23 +188,29 @@ get_args() {
     fi
     echo -n -e "${light_green}?${clear} Do you want to clone the repo locally?: (y/N) "; read -re add_local_clone
     if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
+        add_local_clone="yes"
         printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
         printf "%b?%b Path for local directory (leave empty for CWD): " "$light_green" "$clear"
         read -re local_path
+        if [[ -z $local_path ]]; then
+            printf "\n"
+            local_path=$(pwd)
+        fi
     elif [[ $add_local_clone = "no" || $add_local_clone = "n" ]]; then
+        add_local_clone="no"
         printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
     elif [[ $add_local_clone = "" ]]; then
+        add_local_clone="no"
         printf "\r\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
     printf "%b?%b This will create \"$project_name\" as a $visibility_choice repo on Github, " "${light_green}" "${clear}"
-    if [[ -n $local_path ]]; then
+    if [[ $add_local_clone = "yes" ]]; then
         printf "a local clone at path %s " "$local_path"
     fi
     printf "and a obsidian note!!!\n"
     printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
     read -r continue
     if [[ $continue = "yes" || $continue = "y" ]]; then
-
         :
     elif [[ $continue = "no" || $continue = "n" ]]; then
         exit 0
@@ -216,7 +222,7 @@ get_args() {
 main() {
 
     get_args
-    if [[ -n $local_path ]]; then
+    if [[ $add_local_clone = "yes" ]]; then
         func_local_clone
     else
         func_repo
