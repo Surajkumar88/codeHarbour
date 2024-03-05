@@ -171,12 +171,12 @@ get_git_license() {
         add_license="yes"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}" 
         get_git_license_menu
-    elif [[ $add_license = "no" || $add_license = "n" ]]; then
+    elif [[ $add_license = "no" || $add_license = "n" || $add_license = "" ]]; then
         add_license="no"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}" 
-    elif [[ $add_license = "" ]]; then
-        add_license="no"
-        printf "\r\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
+    # elif [[ $add_license = "" ]]; then
+    #     add_license="no"
+    #     printf "\r\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
 }
 
