@@ -16,7 +16,7 @@ visibility_options=("public" "private" "internal")
 license_options=("MIT License" "GNU Affero General Public License v3.0" "Apache License 2.0" "Boost Software License 1.0" "Creative Commons Zero v1.0 Universal" "Eclipse Public License 2.0" "GNU General Public License v2.0" "GNU General Public License v3.0" "GNU Lesser General Public License v2.1" "Mozilla Public License 2.0" "The Unlicense")
 license_options_shortId=("MIT" "AGPL-3.0" "Apache-2.0" "BSL-1.0" "CC0-1.0" "EPL-2.0" "GPL-2.0-only" "GPL-3.0-only" "LGPL-2.1-only" "MPL-2.0" "Unlicense")
 
-
+###### Functions to create the repo creation link
 func_readme() {
     if [[ $add_readme = "yes" ]]; then
         create_repo=$create_repo" --add-readme"
@@ -116,7 +116,16 @@ get_key_input() {
     fi
 }
 
-##### Functions for Getting Project details
+##### Secondary (helper) function for Primary functions
+
+get_git_license_menu() {
+    printf "%b?%b Choose Github License: \n" "$light_green" "$clear"
+    create_menu "${license_options[@]}"; license_choice=${license_options_shortId[$selected]}
+    printf "\r\e[12A\e[0J"
+    printf "%b?%b Github License: %b${license_options[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
+}
+
+##### Primary functions for Getting Project details
 get_projectName() {
     printf "%b?%b Project name: " "$light_green" "$clear"
     regex='^[0-9A-Za-z!@#$%^&*()_+-={}|\;:<>/?"]+$' ##
@@ -157,22 +166,11 @@ get_git_visibility() {
 }
 
 get_git_license() {
-    printf "%b?%b Choose Github License: \n" "$light_green" "$clear"
-    create_menu "${license_options[@]}"; license_choice=${license_options_shortId[$selected]}
-    printf "\r\e[12A\e[0J"
-    printf "%b?%b Github License: %b${license_options[$selected]}%b\n" "$light_green" "$clear" "$light_green" "$clear"
-}
-
-get_args() {
-    get_projectName
-    get_proj_desc
-    get_git_visibility
-
-    echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -re add_license
+    echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -r add_license
     if [[ $add_license = "yes" || $add_license = "y" ]]; then
         add_license="yes"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}" 
-        get_git_license
+        get_git_license_menu
     elif [[ $add_license = "no" || $add_license = "n" ]]; then
         add_license="no"
         printf "\r\e[1A\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}" 
@@ -180,6 +178,14 @@ get_args() {
         add_license="no"
         printf "\r\e[0J%b?%b Do you want to add License?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
+}
+
+get_args() {
+    get_projectName
+    get_proj_desc
+    get_git_visibility
+    get_git_license
+    
     echo -n -e "${light_green}?${clear} Do you want to add a README file?: (y/N) "; read -re add_readme
     if [[ $add_readme = "yes" || $add_readme = "y" ]]; then
         add_readme="yes"
