@@ -180,12 +180,7 @@ get_git_license() {
     fi
 }
 
-get_args() {
-    get_projectName
-    get_proj_desc
-    get_git_visibility
-    get_git_license
-    
+get_git_readme() {
     echo -n -e "${light_green}?${clear} Do you want to add a README file?: (y/N) "; read -re add_readme
     if [[ $add_readme = "yes" || $add_readme = "y" ]]; then
         add_readme="yes"
@@ -197,6 +192,15 @@ get_args() {
         add_readme="no"
         printf "\r\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
+}
+
+get_args() {
+    get_projectName
+    get_proj_desc
+    get_git_visibility
+    get_git_license
+    get_git_readme
+    
     echo -n -e "${light_green}?${clear} Do you want to clone the repo locally?: (y/N) "; read -re add_local_clone
     if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
         add_local_clone="yes"
