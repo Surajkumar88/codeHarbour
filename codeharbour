@@ -214,6 +214,22 @@ get_git_clone() {
     fi
 }
 
+get_final_confirm() {
+    printf "%b?%b This will create \"$project_name\" as a $visibility_choice repo on Github, " "${light_green}" "${clear}"
+    if [[ $add_local_clone = "yes" ]]; then
+        printf "a local clone at path %s " "$local_path"
+    fi
+    printf "and a obsidian note!!!\n"
+    printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
+    read -r continue
+    if [[ $continue = "yes" || $continue = "y" || $continue = "" ]]; then
+        printf "\r\e[1A\e[0J%b?%b Do you want to continue?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
+    elif [[ $continue = "no" || $continue = "n" ]]; then
+        printf "\r\e[1A\e[0J%b?%b Do you want to continue?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
+        exit 0
+    fi
+}
+
 get_args() {
     get_projectName
     get_proj_desc
@@ -222,20 +238,7 @@ get_args() {
     get_git_readme
     get_git_clone
     
-    printf "%b?%b This will create \"$project_name\" as a $visibility_choice repo on Github, " "${light_green}" "${clear}"
-    if [[ $add_local_clone = "yes" ]]; then
-        printf "a local clone at path %s " "$local_path"
-    fi
-    printf "and a obsidian note!!!\n"
-    printf "%b?%b Do you want to continue?: (Y/n) " "${light_green}" "${clear}"
-    read -r continue
-    if [[ $continue = "yes" || $continue = "y" ]]; then
-        :
-    elif [[ $continue = "no" || $continue = "n" ]]; then
-        exit 0
-    elif [[ $continue = "" ]]; then
-        :
-    fi
+    get_final_confirm
 }       
 
 main() {
