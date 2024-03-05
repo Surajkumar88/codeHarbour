@@ -144,6 +144,11 @@ get_projectName() {
     printf "\r\e[K%b?%b Project name: %b$project_name%b \n" "$light_green" "$clear" "$light_green" "$clear"
 }
 
+get_proj_desc() {
+    printf "%b?%b Project Description: " "$light_green" "$clear"
+    read -r project_desc
+}
+
 get_git_visibility() {
     printf "%b?%b Github Visibility: \n" "$light_green" "$clear"
     create_menu "${visibility_options[@]}"; visibility_choice=${visibility_options[$selected]}
@@ -160,7 +165,7 @@ get_git_license() {
 
 get_args() {
     get_projectName
-    echo -n -e "${light_green}?${clear} Description: " ; read -re project_desc; [[ -z $project_desc ]] && printf "\n"
+    get_proj_desc
     get_git_visibility
 
     echo -n -e "${light_green}?${clear} Do you want to add License?: (y/N) " ; read -re add_license
