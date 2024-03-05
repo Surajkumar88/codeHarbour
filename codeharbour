@@ -181,16 +181,36 @@ get_git_license() {
 }
 
 get_git_readme() {
-    echo -n -e "${light_green}?${clear} Do you want to add a README file?: (y/N) "; read -re add_readme
+    echo -n -e "${light_green}?${clear} Do you want to add a README file?: (y/N) "; read -r add_readme
     if [[ $add_readme = "yes" || $add_readme = "y" ]]; then
         add_readme="yes"
         printf "\r\e[1A\e[0J%b?%b Do you want to add a README file?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
-    elif [[ $add_readme = "no" || $add_readme = "n" ]]; then
+    elif [[ $add_readme = "no" || $add_readme = "n" || $add_readme = "" ]]; then
         add_readme="no"
         printf "\r\e[1A\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
-    elif [[ $add_readme = "" ]]; then
-        add_readme="no"
-        printf "\r\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
+    # elif [[ $add_readme = "" ]]; then
+    #     add_readme="no"
+    #     printf "\r\e[0J%b?%b Do you want to add a README file?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
+    fi
+}
+
+get_git_clone() {
+    echo -n -e "${light_green}?${clear} Do you want to clone the repo locally?: (y/N) "; read -r add_local_clone
+    if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
+        add_local_clone="yes"
+        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
+        printf "%b?%b Path for local directory (leave empty for CWD): " "$light_green" "$clear"
+        read -r local_path
+        if [[ -z $local_path ]]; then
+            printf "\n"
+            local_path=$(pwd)
+        fi
+    elif [[ $add_local_clone = "no" || $add_local_clone = "n" || $add_local_clone = "" ]]; then
+        add_local_clone="no"
+        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
+    # elif [[ $add_local_clone = "" ]]; then
+    #     add_local_clone="no"
+    #     printf "\r\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
     fi
 }
 
@@ -200,24 +220,8 @@ get_args() {
     get_git_visibility
     get_git_license
     get_git_readme
+    get_git_clone
     
-    echo -n -e "${light_green}?${clear} Do you want to clone the repo locally?: (y/N) "; read -re add_local_clone
-    if [[ $add_local_clone = "yes" || $add_local_clone = "y" ]]; then
-        add_local_clone="yes"
-        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %byes%b \n" "${light_green}" "${clear}" "${light_green}" "${clear}"
-        printf "%b?%b Path for local directory (leave empty for CWD): " "$light_green" "$clear"
-        read -re local_path
-        if [[ -z $local_path ]]; then
-            printf "\n"
-            local_path=$(pwd)
-        fi
-    elif [[ $add_local_clone = "no" || $add_local_clone = "n" ]]; then
-        add_local_clone="no"
-        printf "\r\e[1A\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"
-    elif [[ $add_local_clone = "" ]]; then
-        add_local_clone="no"
-        printf "\r\e[0J%b?%b Do you want to clone the repo locally?: %bno%b \n" "${light_green}" "${clear}" "${red}" "${clear}"     
-    fi
     printf "%b?%b This will create \"$project_name\" as a $visibility_choice repo on Github, " "${light_green}" "${clear}"
     if [[ $add_local_clone = "yes" ]]; then
         printf "a local clone at path %s " "$local_path"
