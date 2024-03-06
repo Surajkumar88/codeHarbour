@@ -237,7 +237,6 @@ get_args() {
     get_git_license
     get_git_readme
     get_git_clone
-    
     get_final_confirm
 }       
 
