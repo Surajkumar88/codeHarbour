@@ -249,7 +249,7 @@ main() {
     else
         func_repo
     fi
-    # func_obs_note
+    func_obs_note
     echo -e "${green}✓${clear} Project $project_name has been initiated successfully!!!"
 }
 
