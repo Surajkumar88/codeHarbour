@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 
 light_green='\033[92m'
 green='\033[32m'
