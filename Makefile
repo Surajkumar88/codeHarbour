@@ -15,7 +15,9 @@ all:
 	@echo You may have to run this as root.
 
 install:
-	@cp -p codeharbour $(DESTDIR)
+	@/bin/bash shebang_mod
+	@cp -p codeharbour_install $(DESTDIR)/codeharbour
+	@rm -f codeharbour_install
 	@echo CodeHarbour has been installed!!!
 
 uninstall:
